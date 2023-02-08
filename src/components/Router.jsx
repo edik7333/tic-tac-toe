@@ -2,8 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import MyNav from "../components/navigation/Nav"
 import Footer from "../components/structure/Footer";
-import TicTacToePage from "../pages/tic-tac-toePage";
-import TicTacToe from "./games/tic-tac-toe";
+import FourInARowPage from "../pages/four-in-a-row-page";
 
 const Main = () => {
   return (
@@ -11,9 +10,7 @@ const Main = () => {
     <BrowserRouter>
       <MyNav/>
       <Routes>
-        <Route path="/TicTacToe" element={<TicTacToePage />} />
-        <Route path="/tic-tac-toe" element={<TicTacToe />} />
-        <Route path="/tic-tac-toe" element={<TicTacToe />} />
+        <Route path="/4InARow" element={<FourInARowPage />} />
       </Routes>
       <Footer/>
     </BrowserRouter>

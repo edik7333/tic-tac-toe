@@ -17,7 +17,7 @@ import NightlightIcon from '@mui/icons-material/Nightlight';
 import { darkTheme, themeContext, whiteTheme } from "../../App";
 
 
-const pages = ['TicTacToe', 'Pricing', 'Support'];
+const pages = ['4InARow', 'Pricing', 'Support'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 
