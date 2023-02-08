@@ -46,18 +46,17 @@ app.post("/TicTacToe/game", (req, res) => {
   var p = "x";
   //var p = ip == player1 ? "x" : "o";
 
-  if (req.query.x != "" && req.query.y != "" && p == activePlayer) {
+  if (req.query.x != "" && p == activePlayer) {
     const x = "1";
-    const y = "1";
 
-    setCell(p, x, y);
+    setCell(p, x);
     if (p == "x") activePlayer = "o";
     else activePlayer = "x";
   }
 
   resData.yourTurn = p == activePlayer;
 
-  if (checkWin() != null) {
+  if (CheckWin() != null) {
     resData.cmd = "win";
     resData.yourTurn = false;
   }
@@ -68,7 +67,7 @@ app.listen(port, () => {
   console.log(`Game server listening on port ${port}`);
 });
 
-function setCell(player, x, y) {
+function setCell(player, x) {
   if (board[y][x] != "") return;
   board[y][x] = player;
 }
@@ -130,10 +129,14 @@ function CheckWin() {
 
 function newGame(newPlayer1) {
   player1 = newPlayer1;
-  player2 = "";
   board = [
-    [[], [], []],
-    [[], [], []],
-    [[], [], []],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
   ];
 }
