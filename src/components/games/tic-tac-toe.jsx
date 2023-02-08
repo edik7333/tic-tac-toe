@@ -6,20 +6,28 @@ import { useState } from "react";
 const url = "http://127.0.0.1:3001"
 
 export default function TicTacToe(){
-    const [data,setData] = useState([['x','o',''],['x','x','o'],['x','o','o']])
+    const [data,setData] = useState([['x','o','x','x'],['x','o','x','o'],['x','o','x','x'],['x','o','o','x'],['x','o','o','o'],['x','o','x','x'],['x','o','x','o'],['x','o','','o']])
     const [grid,setGrid] = useState()
     const [activePlayer, setActivePlayer] = useState('x')
 
     useEffect(()=>{
         let tempGrid = []
-        for(var x=0;x<data.length;x++)
+
+        for(var x=0;x<data[0].length;x++)
+        {
+            const dataXY = data[y][x]
+            const color = dataXY=='x'?"error":"primary"
+            tempGrid.push(<Grid id={""+(y*3)+(x+1)} item height={40} xs={4}> <Button onClick={()=>{handleClick(dataXY, x)}} color={color} variant="text">{dataXY}</Button></Grid>)
+        }
+
+        for(var y=0;y<data.length;y++)
         {
             const tempRow = []
-            for(var y=0;y<data[0].length;y++)
+            for(var x=0;x<data[0].length;x++)
             {
                 const dataXY = data[y][x]
                 const color = dataXY=='x'?"error":"primary"
-                tempRow.push(<Grid item height={40} xs={4}><Button id={""+(y*3)+(x+1)} sx={{height:40}} onClick={()=>{handleClick(dataXY, x, y)}} color={color} variant="text">{dataXY}</Button></Grid>)
+                tempRow.push(<Grid id={""+(y*3)+(x+1)} color={color} item height={40} xs={4}>{dataXY}</Grid>)
             }
             tempGrid.push(
                 <Grid item>{tempRow}</Grid>
@@ -30,11 +38,10 @@ export default function TicTacToe(){
     }
     ,[data])
 
-    const handleClick = (who,x,y)=>{
+    const handleClick = (who,x)=>{
         if(who!='')
             return
-        httpGet("/TicTacToe/game",{x:x,
-        y:y})
+        httpGet("/TicTacToe/game",{x:x})
     }
     
     function httpGet(path,params)

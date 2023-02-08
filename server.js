@@ -4,9 +4,14 @@ var x = "10.1.1.1";
 var activePlayer = "x";
 
 var board = [
-  ["", "", ""],
-  ["", "", ""],
-  ["", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
 ];
 
 //create a server object:
@@ -68,31 +73,59 @@ function setCell(player, x, y) {
   board[y][x] = player;
 }
 
-function checkWin() {
-  // Check rows
-  for (let i = 0; i < 3; i++) {
-    if (board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
-      return board[i][0];
+function CheckWin() {
+  console.log("IsFinished");
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      //Row Check
+      if (col < 5) {
+        if (
+          board[row][col] == board[row][col + 1] &&
+          board[row][col + 2] == board[row][col + 3]
+        ) {
+          if (board[row][col + 1] == board[row][col + 2]) {
+            return true;
+          }
+        }
+      }
+      //Colom Check
+      if (row < 5) {
+        if (
+          board[row][col] == board[row + 1][col] &&
+          board[row + 2][col] == board[row + 3][col]
+        ) {
+          if (board[row + 1][col] == board[row + 2][col]) {
+            return true;
+          }
+        }
+      }
+
+      //check line from up-left -> down-right
+      if (col < 5 && row < 5) {
+        if (
+          board[row][col] == board[row + 1][col + 1] &&
+          board[row + 2][col + 2] == board[row + 3][col + 3]
+        ) {
+          if (board[row + 1][col + 1] == board[row + 2][col + 2]) {
+            return true;
+          }
+        }
+      }
+      //check line from up-right -> down-left
+      if (row < 5 && col > 2) {
+        //bug
+        if (
+          board[row][col] == board[row - 1][col + 1] &&
+          board[row - 2][col + 2] == board[row - 3][col + 3]
+        ) {
+          if (board[row - 1][col + 1] == board[row - 2][col + 2]) {
+            return true;
+          }
+        }
+      }
     }
   }
-
-  // Check columns
-  for (let j = 0; j < 3; j++) {
-    if (board[0][j] === board[1][j] && board[1][j] === board[2][j]) {
-      return board[0][j];
-    }
-  }
-
-  // Check diagonals
-  if (board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
-    return board[0][0];
-  }
-  if (board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
-    return board[0][2];
-  }
-
-  // No one has won
-  return null;
+  return false;
 }
 
 function newGame(newPlayer1) {
