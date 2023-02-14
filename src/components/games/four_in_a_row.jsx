@@ -17,7 +17,7 @@ export default function FourInARow(){
 
         for(var x=0;x<data[0].length;x++)
         {
-            tempRow.push(<Grid id={""+(x+1)} item xs={1} height={40}> <Button onClick={()=>{handleClick(x)}} variant="text">{x+1}</Button></Grid>)
+            tempRow.push(<Grid id={""+(x+1)} item xs={1} height={40}> <Button value={x+1} onClick={(event)=>{handleClick(event.target.value)}} variant="text">{x+1}</Button></Grid>)
         }
         tempGrid.push(
             <Grid container item xs={12} columns={8}>{tempRow}</Grid>
@@ -41,16 +41,16 @@ export default function FourInARow(){
     }
     ,[data])
 
-    const handleClick = (who,x)=>{
-        if(who!='')
-            return
-        httpGet("/TicTacToe/game",{x:x})
+    const handleClick = (x)=>{
+        console.log("test "+x)
+        httpGet("/TicTacToe/game",{x:x-1})
     }
     
     function httpGet(path,params)
     {
         const options = {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify( params ),
         };
         fetch( url+path, options )

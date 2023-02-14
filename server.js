@@ -1,6 +1,8 @@
 var http = require("http");
+const bodyParser = require("body-parser");
 
 var x = "10.1.1.1";
+var o = "";
 var activePlayer = "x";
 
 var board = [
@@ -30,33 +32,41 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(bodyParser.json());
+
 app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 app.post("/TicTacToe/game", (req, res) => {
-  const resData = { board: board, cmd: "", yourTurn: false };
+  const resData = { board: board, cmd: "", yourTurn: false, winner: "" };
   var ip = req.headers["x-real-ip"] || req.connection.remoteAddress;
+  const params = req.body;
 
-  if (req.query.newGame == true) {
+  if (params.newGame == true) {
     newGame(ip);
+  }
+
+  if (ip != x && o == "") {
+    o = ip;
   }
 
   //debug
   var p = "x";
   //var p = ip == player1 ? "x" : "o";
 
-  if (req.query.x != "" && p == activePlayer) {
-    const x = "1";
+  if (params.x != "" && p == activePlayer) {
+    const x = params.x;
 
-    setCell(p, x);
-    if (p == "x") activePlayer = "o";
-    else activePlayer = "x";
+    if (setCell(p, x)) {
+      if (p == "x") activePlayer = "o";
+      else activePlayer = "x";
+    }
   }
 
   resData.yourTurn = p == activePlayer;
 
-  if (CheckWin() != null) {
+  if (CheckWin()) {
     resData.cmd = "win";
     resData.yourTurn = false;
   }
@@ -68,14 +78,20 @@ app.listen(port, () => {
 });
 
 function setCell(player, x) {
-  if (board[y][x] != "") return;
-  board[y][x] = player;
+  for (var y = board[0].length - 1; y > 0; y--) {
+    if (board[x][y] == "") {
+      board[x][y] = player;
+      return true;
+    }
+  }
+  return false;
 }
 
 function CheckWin() {
   console.log("IsFinished");
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
+      if (board[row][col] == "") continue;
       //Row Check
       if (col < 5) {
         if (
@@ -128,7 +144,8 @@ function CheckWin() {
 }
 
 function newGame(newPlayer1) {
-  player1 = newPlayer1;
+  x = newPlayer1;
+  o = "";
   board = [
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
