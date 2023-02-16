@@ -123,7 +123,6 @@ function setCell(player, x) {
 }
 
 function CheckWin() {
-  console.log("IsFinished");
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       if (board[row][col] == "") continue;
