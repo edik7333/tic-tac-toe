@@ -1,15 +1,38 @@
-import { Button, Grid, Paper, Typography } from "@mui/material";
+import { Button, CircularProgress, Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 
-const url = "http://127.0.0.1:3001"
+const url = "http://192.168.1.23:3001"
 
 export default function FourInARow(){
+    const [clientId, setClientId] = useState(null);
     const [data,setData] = useState([['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o']])
-    const [grid,setGrid] = useState()
+    const [grid,setGrid] = useState(<CircularProgress />)
     const [activePlayer, setActivePlayer] = useState('x')
     const [winner,setWinner] = useState('')
+    const [listener,setListener] = useState('')
+    const [yourTurn, setYourTurn] = useState(false)
+    const [prevTurn, setPrevTurn] = useState(true)
+
+    useEffect(()=>{
+        console.log(yourTurn)
+        if(!yourTurn && prevTurn)
+        {
+            console.log("start listener")
+            setPrevTurn(yourTurn)
+            const listen = setInterval(()=>{httpGet("/TicTacToe/game",{})},1000)
+            setListener(listen)
+            return clearInterval(listener);
+        }
+        else if(yourTurn && !prevTurn)
+        {
+            console.log("end listener")
+            setPrevTurn(yourTurn)
+            clearInterval(listener)
+        }
+            
+    },[yourTurn])
 
     useEffect(()=>{
         let tempGrid = []
@@ -56,10 +79,18 @@ export default function FourInARow(){
         fetch( url+path, options )
             .then( response => response.json() )
             .then( response => {
+                if(response.clientId!="")
+                    setClientId(response.clientId)
                 setData(response.board)
-                setActivePlayer(response.yourTurn==true?'x':'o')
+                setYourTurn(response.yourTurn)
+                setActivePlayer(response.activePlayer)
                 if(response.winner!='')
+                {
+                    setYourTurn(false)
                     setWinner(response.winner+" won")
+                }
+                else
+                    setWinner("")
 
             } );
     }
@@ -76,6 +107,7 @@ export default function FourInARow(){
                 <Grid container m={2} spacing={2}>
                     {grid}
                 </Grid>
+                <Button onClick={()=>{httpGet("/TicTacToe/game",{newGame:true})}}>New Game</Button>
             </Paper>
         </React.Fragment>
     )

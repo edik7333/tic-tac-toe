@@ -5,7 +5,7 @@ import FourInARow from "../components/games/four_in_a_row";
 
 export default function FourInARowPage(){
     return(
-        <Box width={"100%"} height={"100vh"} sx={{backgroundColor:'primary'}} 
+        <Box width={"100%"} height={"100vh"} sx={{backgroundColor:'primary', mt:10}} 
         display="flex"
         justifyContent="center"
         alignItems="center">

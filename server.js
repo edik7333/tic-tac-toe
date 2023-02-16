@@ -1,9 +1,12 @@
 var http = require("http");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
-var x = "10.1.1.1";
+var x = "";
 var o = "";
 var activePlayer = "x";
+var winner = "";
 
 var board = [
   ["", "", "", "", "", "", "", ""],
@@ -22,6 +25,9 @@ const path = require("path");
 const app = express();
 const port = 3001;
 app.use(express.static(path.join(__dirname, "build")));
+app.use(cookieParser());
+app.use(cors());
+app.use(setClientId);
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -39,23 +45,32 @@ app.get("/*", function (req, res) {
 });
 
 app.post("/TicTacToe/game", (req, res) => {
-  const resData = { board: board, cmd: "", yourTurn: false, winner: "" };
+  const resData = {
+    board: board,
+    cmd: "",
+    yourTurn: false,
+    winner: winner,
+    activePlayer: activePlayer,
+  };
   var ip = req.headers["x-real-ip"] || req.connection.remoteAddress;
   const params = req.body;
 
   if (params.newGame == true) {
-    newGame(ip);
+    newGame(req.cookies.clientId);
+    //resData.clientId = req.cookies.clientId;
   }
-
-  if (ip != x && o == "") {
-    o = ip;
+  if (x == "") {
+    x = req.cookies.clientId;
+  } else if (o == "") {
+    o = req.cookies.clientId;
+    //resData.clientId = req.cookies.clientId;
   }
 
   //debug
-  var p = "x";
-  //var p = ip == player1 ? "x" : "o";
+  //var p = "x";
+  var p = req.cookies.clientId == x ? "x" : "o";
 
-  if (params.x != "" && p == activePlayer) {
+  if (params.x != null && p == activePlayer) {
     const x = params.x;
 
     if (setCell(p, x)) {
@@ -64,12 +79,12 @@ app.post("/TicTacToe/game", (req, res) => {
     }
   }
 
-  resData.yourTurn = p == activePlayer;
-
-  if (CheckWin()) {
-    resData.cmd = "win";
-    resData.yourTurn = false;
+  if (CheckWin() && winner == "") {
+    winner = activePlayer == "x" ? "o" : "x";
+    resData.winner = winner;
+    activePlayer = "";
   }
+  resData.yourTurn = p == activePlayer;
   res.send(resData);
 });
 
@@ -96,14 +111,13 @@ function CheckWin() {
       if (col < 5) {
         if (
           board[row][col] == board[row][col + 1] &&
-          board[row][col + 2] == board[row][col + 3]
+          board[row][col + 2] == board[row][col + 3] &&
+          board[row][col + 1] == board[row][col + 2]
         ) {
-          if (board[row][col + 1] == board[row][col + 2]) {
-            return true;
-          }
+          return true;
         }
       }
-      //Colom Check
+      //Colum Check
       if (row < 5) {
         if (
           board[row][col] == board[row + 1][col] &&
@@ -119,23 +133,21 @@ function CheckWin() {
       if (col < 5 && row < 5) {
         if (
           board[row][col] == board[row + 1][col + 1] &&
-          board[row + 2][col + 2] == board[row + 3][col + 3]
+          board[row + 2][col + 2] == board[row + 3][col + 3] &&
+          board[row + 1][col + 1] == board[row + 2][col + 2]
         ) {
-          if (board[row + 1][col + 1] == board[row + 2][col + 2]) {
-            return true;
-          }
+          return true;
         }
       }
       //check line from up-right -> down-left
-      if (row < 5 && col > 2) {
+      if (col < 5 && row > 2) {
         //bug
         if (
           board[row][col] == board[row - 1][col + 1] &&
-          board[row - 2][col + 2] == board[row - 3][col + 3]
+          board[row - 2][col + 2] == board[row - 3][col + 3] &&
+          board[row - 1][col + 1] == board[row - 2][col + 2]
         ) {
-          if (board[row - 1][col + 1] == board[row - 2][col + 2]) {
-            return true;
-          }
+          return true;
         }
       }
     }
@@ -146,6 +158,8 @@ function CheckWin() {
 function newGame(newPlayer1) {
   x = newPlayer1;
   o = "";
+  winner = "";
+  activePlayer = "x";
   board = [
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
@@ -156,4 +170,13 @@ function newGame(newPlayer1) {
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
   ];
+}
+
+function setClientId(req, res, next) {
+  if (!req.cookies.clientId) {
+    // Generate a random ID and set it in a cookie
+    const clientId = Math.random().toString(36).substring(2, 10);
+    res.cookie("clientId", clientId, { maxAge: 24 * 60 * 60 * 1000 }); // Cookie expires after 1 day
+  }
+  next();
 }
