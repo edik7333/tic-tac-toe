@@ -6,7 +6,7 @@ import { useState } from "react";
 const url = "http://192.168.1.35:3001"
 
 export default function FourInARow(){
-    const [data,setData] = useState([['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o']])
+    const [data,setData] = useState([['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','','']])
     const [grid,setGrid] = useState(<CircularProgress />)
     const [activePlayer, setActivePlayer] = useState('x')
     const [winner,setWinner] = useState('')
@@ -34,7 +34,7 @@ export default function FourInARow(){
             {
                 const dataXY = data[x][y]
                 const color = dataXY=='x'?"error":"primary"
-                tempRow.push(<Grid id={""+(y*3)+(x+1)} item xs={1} height={40}><Typography color={color}>{dataXY}</Typography></Grid>)
+                tempRow.push(<Grid id={""+(y*3)+(x+1)} item xs={1} width={5} height={40} ><Typography color={color}>{dataXY}</Typography></Grid>)
             }
             tempGrid.push(
                 <Grid container item xs={12} columns={8}>{tempRow}</Grid>
@@ -101,11 +101,11 @@ export default function FourInARow(){
             <Typography variant="h6">
                 {activePlayer} now plays
             </Typography>
-            <Typography color={'secondary'}>
+            <Typography color={'secondary'} mb={4}>
                 {winner}
             </Typography>
             <Paper>
-                <Grid container m={2} spacing={2}>
+                <Grid container spacing={2}>
                     {grid}
                 </Grid>
                 <Button onClick={()=>{httpGet("/4InARow/game",{newGame:true})}}>New Game</Button>
