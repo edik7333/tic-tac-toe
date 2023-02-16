@@ -1,4 +1,3 @@
-var http = require("http");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -24,35 +23,65 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const port = 3001;
+
 app.use(express.static(path.join(__dirname, "build")));
 app.use(cookieParser());
 app.use(cors());
 app.use(setClientId);
-
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
-
 app.use(bodyParser.json());
+
+app.get("/4InARow/events", (req, res) => {
+  // Set headers for Server-Sent Events
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Send initial event to open the connection
+  res.write("event: open\ndata: Connection established\n\n");
+
+  // Define interval for sending events
+  const interval = setInterval(() => {
+    const resData = {
+      board: board,
+      cmd: "",
+      yourTurn: false,
+      winner: winner,
+      activePlayer: activePlayer,
+    };
+
+    if (CheckWin() && winner == "") {
+      winner = activePlayer == "x" ? "o" : "x";
+      resData.winner = winner;
+      activePlayer = "";
+    }
+
+    if (x == "") {
+      x = req.cookies.clientId;
+    } else if (o == "") {
+      o = req.cookies.clientId;
+      //resData.clientId = req.cookies.clientId;
+    }
+
+    var p = req.cookies.clientId == x ? "x" : "o";
+    resData.yourTurn = p == activePlayer;
+    // Send the event to the client
+    res.write(`event: message\ndata: ${JSON.stringify(resData)}\n\n`);
+  }, 1000);
+
+  // Listen for client disconnects and stop sending events
+  req.on("close", () => {
+    clearInterval(interval);
+  });
+});
 
 app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-app.post("/TicTacToe/game", (req, res) => {
+app.post("/4InARow/game", (req, res) => {
   const resData = {
-    board: board,
     cmd: "",
-    yourTurn: false,
-    winner: winner,
-    activePlayer: activePlayer,
   };
-  var ip = req.headers["x-real-ip"] || req.connection.remoteAddress;
   const params = req.body;
 
   if (params.newGame == true) {
@@ -66,8 +95,6 @@ app.post("/TicTacToe/game", (req, res) => {
     //resData.clientId = req.cookies.clientId;
   }
 
-  //debug
-  //var p = "x";
   var p = req.cookies.clientId == x ? "x" : "o";
 
   if (params.x != null && p == activePlayer) {
@@ -78,13 +105,6 @@ app.post("/TicTacToe/game", (req, res) => {
       else activePlayer = "x";
     }
   }
-
-  if (CheckWin() && winner == "") {
-    winner = activePlayer == "x" ? "o" : "x";
-    resData.winner = winner;
-    activePlayer = "";
-  }
-  resData.yourTurn = p == activePlayer;
   res.send(resData);
 });
 

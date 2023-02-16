@@ -3,36 +3,17 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 
-const url = "http://192.168.1.23:3001"
+const url = "http://192.168.1.35:3001"
 
 export default function FourInARow(){
-    const [clientId, setClientId] = useState(null);
     const [data,setData] = useState([['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o'],['x','o','x','x','x','o','o','o']])
     const [grid,setGrid] = useState(<CircularProgress />)
     const [activePlayer, setActivePlayer] = useState('x')
     const [winner,setWinner] = useState('')
-    const [listener,setListener] = useState('')
-    const [yourTurn, setYourTurn] = useState(false)
-    const [prevTurn, setPrevTurn] = useState(true)
 
     useEffect(()=>{
-        console.log(yourTurn)
-        if(!yourTurn && prevTurn)
-        {
-            console.log("start listener")
-            setPrevTurn(yourTurn)
-            const listen = setInterval(()=>{httpGet("/TicTacToe/game",{})},1000)
-            setListener(listen)
-            return clearInterval(listener);
-        }
-        else if(yourTurn && !prevTurn)
-        {
-            console.log("end listener")
-            setPrevTurn(yourTurn)
-            clearInterval(listener)
-        }
-            
-    },[yourTurn])
+        initUpdates("/4InARow/events",{})
+    },[])
 
     useEffect(()=>{
         let tempGrid = []
@@ -66,7 +47,7 @@ export default function FourInARow(){
 
     const handleClick = (x)=>{
         console.log("test "+x)
-        httpGet("/TicTacToe/game",{x:x-1})
+        httpGet("/4InARow/game",{x:x-1})
     }
     
     function httpGet(path,params)
@@ -79,20 +60,40 @@ export default function FourInARow(){
         fetch( url+path, options )
             .then( response => response.json() )
             .then( response => {
-                if(response.clientId!="")
-                    setClientId(response.clientId)
+            } );
+    }
+
+    function initUpdates(path,params)
+    {
+
+        const eventSource = new EventSource(url+path);
+        // Log connection open event
+        eventSource.addEventListener('open', () => {
+            console.log('Connection opened!');
+        });
+
+        // Log received message event
+        eventSource.addEventListener('message', (event) => {
+            const response = JSON.parse(event.data);
                 setData(response.board)
-                setYourTurn(response.yourTurn)
                 setActivePlayer(response.activePlayer)
                 if(response.winner!='')
                 {
-                    setYourTurn(false)
                     setWinner(response.winner+" won")
                 }
                 else
                     setWinner("")
+        });
 
-            } );
+        // Log connection error event
+        eventSource.addEventListener('error', () => {
+            console.log('Error occurred!');
+        });
+    
+        // Cleanup function to close the connection on unmount
+        return () => {
+            eventSource.close();
+        };
     }
 
     return(
@@ -107,7 +108,7 @@ export default function FourInARow(){
                 <Grid container m={2} spacing={2}>
                     {grid}
                 </Grid>
-                <Button onClick={()=>{httpGet("/TicTacToe/game",{newGame:true})}}>New Game</Button>
+                <Button onClick={()=>{httpGet("/4InARow/game",{newGame:true})}}>New Game</Button>
             </Paper>
         </React.Fragment>
     )
