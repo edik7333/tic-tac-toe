@@ -7,10 +7,11 @@ To run the application, first make sure you have **Node.js** and **npm** install
 
 1.   Clone this repository to your local machine.
 2.   Navigate to the root directory of the project in your terminal.
-3.   Run npm install to install all the necessary dependencies.
-4.   Run npm build to build the React website.
-5.   Run node server.js to start the node js server.
-6.   Open your web browser and navigate to http://localhost:3001 to view the website.
+3.   Run ```npm install``` to install all the necessary dependencies.
+4.   Open **tic-tac-toe/src/components/games/four_in_a_row.jsx and modify** ```const url = "http://192.168.1.35:3001"``` with your servers IP address.
+5.   Run ```npm run build``` to build the React website.
+6.   Run ```node server.js``` to start the node js server.
+7.   Open your web browser and navigate to http://localhost:3001 to view the website.
 
 <h2>Features</h2>
 
@@ -32,9 +33,3 @@ The Small Games React Website is built using the following technologies:
 5.    HTML/CSS
 6.    MUI
 
-<h2>Contributing</h2>
-
-If you find a bug or have a suggestion for an improvement, please open an issue or submit a pull request. All contributions are welcome!
-License
-
-<small>This project is licensed under the MIT License. See the LICENSE file for more information.</small>
